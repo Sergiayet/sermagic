@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SerMagic - Arte e Ilusión</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#f59e0b',secondary:'#fbbf24'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+overflow: hidden;
+background-color: #ffffff;
+height: 100vh;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.hex-border {
+background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><pattern id="hexagons" width="50" height="43.4" patternUnits="userSpaceOnUse" patternTransform="scale(2)"><polygon points="25,0 50,14.4 50,28.8 25,43.4 0,28.8 0,14.4" fill="none" stroke="%23f59e0b" stroke-width="1"/></pattern><rect width="100%" height="100%" fill="url(%23hexagons)"/></svg>');
+}
+.content-frame {
+width: 100%;
+height: 100%;
+position: relative;
+overflow: hidden;
+}
+.screen {
+position: absolute;
+width: 100%;
+height: 100%;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.5s ease;
+}
+.screen.active {
+opacity: 1;
+pointer-events: auto;
+}
+.casino-chip {
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+cursor: pointer;
+position: relative;
+z-index: 10;
+}
+.casino-chip:hover {
+transform: translateY(-5px) rotate(5deg);
+box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+}
+.casino-chip.active {
+transform: translateY(-3px);
+box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.3);
+}
+.hexagon-bg {
+background: linear-gradient(135deg, #fef3c7, #fcd34d, #f59e0b, #d97706);
+clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+</style>
+</head>
+<body class="bg-white">
+<div class="relative w-full h-screen overflow-hidden">
+<!-- Fondo hexagonal -->
+<div class="absolute inset-0 hex-border"></div>
+<!-- Logo y título -->
+<div class="absolute top-4 left-4 z-10">
+<div class="flex items-center gap-3">
+<div class="text-4xl font-['Pacifico'] text-primary">Arte</div>
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/b7604e38-b2df-4133-9123-a7eb75c50565" data-readdy="true">
+<button class="text-3xl font-['Pacifico'] bg-primary text-white px-4 py-2 rounded-button hover:bg-opacity-90 transition-all whitespace-nowrap">Ilusionismo</button>
+</a>
+</div>
+</div>
+<!-- Logo SerMagic -->
+<div class="absolute top-16 left-4 z-10 bg-white p-3 rounded-md shadow-md">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/ff854654a58744eeb9d32a03f39739b4.jpeg" alt="SerMagic Logo" class="h-20 w-auto">
+</div>
+<!-- Menú de navegación (fichas de casino) -->
+<div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-4 z-20">
+<div class="casino-chip active rounded-full bg-white border-4 border-primary shadow-lg w-20 h-20 flex items-center justify-center" data-target="inicio">
+<span class="text-primary font-bold">Inicio</span>
+</div>
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/b98117df-98fa-46c3-b017-bad3e86fad1b" data-readdy="true">
+<div class="casino-chip rounded-full bg-white border-4 border-primary shadow-lg w-20 h-20 flex items-center justify-center" data-target="servicios">
+<span class="text-primary font-bold">Servicios</span>
+</div>
+</a>
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/b98117df-98fa-46c3-b017-bad3e86fad1b" data-readdy="true">
+<div class="casino-chip rounded-full bg-white border-4 border-primary shadow-lg w-20 h-20 flex items-center justify-center" data-target="sobre-mi">
+<span class="text-primary font-bold">Sobre Mí</span>
+</div>
+</a>
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/b98117df-98fa-46c3-b017-bad3e86fad1b" data-readdy="true">
+<div class="casino-chip rounded-full bg-white border-4 border-primary shadow-lg w-20 h-20 flex items-center justify-center" data-target="galeria">
+<span class="text-primary font-bold">Galería</span>
+</div>
+</a>
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/b98117df-98fa-46c3-b017-bad3e86fad1b" data-readdy="true">
+<div class="casino-chip rounded-full bg-white border-4 border-primary shadow-lg w-20 h-20 flex items-center justify-center" data-target="experiencia">
+<span class="text-primary font-bold">Experiencia</span>
+</div>
+</a>
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/b98117df-98fa-46c3-b017-bad3e86fad1b" data-readdy="true">
+<div class="casino-chip rounded-full bg-white border-4 border-primary shadow-lg w-20 h-20 flex items-center justify-center" data-target="contacto">
+<span class="text-primary font-bold">Contacto</span>
+</div>
+</a>
+</div>
+<!-- Marco de contenido -->
+<div class="content-frame mx-auto my-12 max-w-6xl rounded-lg shadow-2xl border-2 border-primary overflow-hidden">
+<!-- Pantalla de Inicio -->
+<div id="inicio" class="screen active p-8 bg-white">
+<h2 class="text-4xl font-bold text-center mb-8 text-gray-800">Contacta con SerMagic</h2>
+<div class="flex max-w-5xl mx-auto">
+<div class="w-1/2 pr-8">
+<p class="text-lg mb-6 text-gray-600">¿Interesado en contratar mis servicios o tienes alguna pregunta? No dudes en contactarme. Estaré encantado de ayudarte a crear una experiencia mágica inolvidable para tu evento.</p>
+<div class="mb-6">
+<h3 class="text-xl font-bold mb-2">Información de contacto</h3>
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-phone-line"></i>
+</div>
+<span class="text-gray-700">+34 600 665 976</span>
+</div>
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-mail-line"></i>
+</div>
+<span class="text-gray-700">info@sermagic.com</span>
+</div>
+<div class="flex items-center mb-2">
+<a href="https://wa.me/34600665976" target="_blank" class="flex items-center text-green-600 hover:text-green-700 transition-colors">
+<div class="w-8 h-8 flex items-center justify-center">
+<i class="ri-whatsapp-fill text-xl"></i>
+</div>
+<span>Contactar por WhatsApp</span>
+</a>
+</div>
+<div class="flex items-center">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-map-pin-line"></i>
+</div>
+<span class="text-gray-700">Barcelona, España (Disponible para viajar)</span>
+</div>
+</div>
+<div>
+<h3 class="text-xl font-bold mb-2">Sígueme en redes sociales</h3>
+<div class="flex space-x-4">
+<a href="https://www.instagram.com/p/Bo2OYHdHZzM/" data-readdy="true" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<i class="ri-instagram-line"></i>
+</a>
+<a href="#" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<i class="ri-facebook-line"></i>
+</a>
+<a href="https://www.youtube.com/watch?v=Wj9pfxNLpyo" data-readdy="true" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<i class="ri-youtube-line"></i>
+</a>
+<a href="https://sermagic.blogspot.com" data-readdy="true" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<i class="ri-twitter-x-line"></i>
+</a>
+</div>
+</div>
+</div>
+<div class="w-1/2">
+<form action="" method="POST" class="bg-white p-6 rounded-lg shadow-md" id="contactForm">
+<div class="mb-4">
+<label class="block text-gray-700 font-medium mb-2" for="nombre">Nombre</label>
+<input type="text" id="nombre" name="nombre" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Tu nombre">
+</div>
+<div class="mb-4">
+<label class="block text-gray-700 font-medium mb-2" for="email">Email</label>
+<input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Tu email">
+</div>
+<div class="mb-4">
+<label class="block text-gray-700 font-medium mb-2" for="telefono">Teléfono</label>
+<input type="tel" id="telefono" name="telefono" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Tu teléfono">
+</div>
+<div class="mb-4">
+<label class="block text-gray-700 font-medium mb-2" for="evento">Tipo de evento</label>
+<div class="relative">
+<select id="evento" name="evento" required class="w-full px-4 py-2 border border-gray-300 rounded appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent pr-8">
+<option value="" disabled selected>Selecciona el tipo de evento</option>
+<option value="corporativo">Evento corporativo</option>
+<option value="privado">Fiesta privada</option>
+<option value="boda">Boda</option>
+<option value="feria">Feria o exposición</option>
+<option value="workshop">Workshop</option>
+<option value="otro">Otro</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+<i class="ri-arrow-down-s-line text-gray-400"></i>
+</div>
+</div>
+</div>
+<div class="mb-6">
+<label class="block text-gray-700 font-medium mb-2" for="mensaje">Mensaje</label>
+<textarea id="mensaje" name="mensaje" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Cuéntame sobre tu evento"></textarea>
+</div>
+<button type="submit" class="w-full bg-primary text-white py-3 rounded-button font-bold hover:bg-opacity-90 transition-all whitespace-nowrap">Enviar mensaje</button>
+</form>
+<div id="successMessage" class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-xl z-50">
+<div class="text-center">
+<i class="ri-checkbox-circle-line text-green-500 text-5xl mb-4"></i>
+<h3 class="text-xl font-bold mb-2">¡Mensaje enviado!</h3>
+<p class="text-gray-600 mb-4">Gracias por contactar. Te responderemos lo antes posible.</p>
+<button onclick="closeSuccessMessage()" class="bg-primary text-white px-6 py-2 rounded-button hover:bg-opacity-90 transition-all whitespace-nowrap">Aceptar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pantalla de Servicios -->
+<div id="servicios" class="screen p-8 bg-white">
+<h2 class="text-4xl font-bold text-center mb-8 text-gray-800">Servicios Mágicos</h2>
+<p class="text-xl text-center mb-8 max-w-3xl mx-auto text-gray-600">Una amplia gama de experiencias mágicas adaptadas a diferentes necesidades y eventos. Cada actuación es única y personalizada para crear momentos inolvidables.</p>
+<div class="grid grid-cols-3 gap-6 max-w-5xl mx-auto">
+<!-- Servicio 1 -->
+<div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4 mx-auto">
+<i class="ri-building-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-2">Magia Corporativa</h3>
+<p class="text-gray-600 text-center mb-4">La fórmula perfecta para presentar tu producto de la manera más original, actual, distinta, directa y mágica.</p>
+<button class="w-full bg-white text-primary border border-primary py-2 rounded-button font-medium hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Más información</button>
+</div>
+<!-- Servicio 2 -->
+<div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4 mx-auto">
+<i class="ri-goblet-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-2">Magia de Cóctel</h3>
+<p class="text-gray-600 text-center mb-4">Auténticos milagros a centímetros de distancia mientras tus invitados disfrutan de un cóctel.</p>
+<button class="w-full bg-white text-primary border border-primary py-2 rounded-button font-medium hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Más información</button>
+</div>
+<!-- Servicio 3 -->
+<div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4 mx-auto">
+<i class="ri-store-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-2">Animaciones para Ferias</h3>
+<p class="text-gray-600 text-center mb-4">Un elegante medio que sorprenderá en tu stand y atraerá a futuros clientes. Éxito garantizado.</p>
+<button class="w-full bg-white text-primary border border-primary py-2 rounded-button font-medium hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Más información</button>
+</div>
+<!-- Servicio 4 -->
+<div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4 mx-auto">
+<i class="ri-movie-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-2">Shows de Escenario</h3>
+<p class="text-gray-600 text-center mb-4">Espectáculos visuales llenos de emoción y asombro para grandes audiencias con efectos sorprendentes.</p>
+<button class="w-full bg-white text-primary border border-primary py-2 rounded-button font-medium hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Más información</button>
+</div>
+<!-- Servicio 5 -->
+<div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4 mx-auto">
+<i class="ri-cake-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-2">Eventos Especiales</h3>
+<p class="text-gray-600 text-center mb-4">Bodas, aniversarios, cumpleaños y celebraciones privadas con magia personalizada para cada ocasión.</p>
+<button class="w-full bg-white text-primary border border-primary py-2 rounded-button font-medium hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Más información</button>
+</div>
+<!-- Servicio 6 -->
+<div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4 mx-auto">
+<i class="ri-team-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-2">Workshops Mágicos</h3>
+<p class="text-gray-600 text-center mb-4">Talleres interactivos donde aprenderás los secretos básicos de la magia. Ideal para team building.</p>
+<button class="w-full bg-white text-primary border border-primary py-2 rounded-button font-medium hover:bg-primary hover:text-white transition-colors whitespace-nowrap">Más información</button>
+</div>
+</div>
+</div>
+<!-- Pantalla Sobre Mí -->
+<div id="sobre-mi" class="screen p-8 bg-white">
+<h2 class="text-4xl font-bold text-center mb-8 text-gray-800">Sobre SerMagic</h2>
+<div class="flex gap-8 max-w-5xl mx-auto">
+<div class="w-1/3">
+<div class="bg-white p-6 rounded-lg shadow-md h-full">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4 mx-auto">
+<i class="ri-graduation-cap-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-4">Formación y Trayectoria</h3>
+<p class="text-gray-600 text-center">Con más de tres década de experiencia en el mundo del ilusionismo, mi pasión por la magia me ha llevado a perfeccionar técnicas y crear rutinas originales para que las disfrutéis y sobretodo, que conectan con todo tipo de audiencias.</p>
+</div>
+</div>
+<div class="w-1/3">
+<div class="bg-white p-6 rounded-lg shadow-md h-full">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4 mx-auto">
+<i class="ri-award-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-4">Reconocimientos</h3>
+<p class="text-gray-600 text-center">Miembro de la Federación Internacional de Magos (F.I.S.M.) y de la Asociación de Magos Ilusionistas de Cataluña (A.M.I.C). He llevado mi arte por escenarios nacionales e internacionales.</p>
+</div>
+</div>
+<div class="w-1/3">
+<div class="bg-white p-6 rounded-lg shadow-md h-full">
+<div class="w-16 h-16 bg-primary bg-opacity-10 rounded-full flex items-center justify-center mb-4 mx-auto">
+<i class="ri-heart-line text-primary text-2xl"></i>
+</div>
+<h3 class="text-xl font-bold text-center mb-4">Mi Filosofía</h3>
+<p class="text-gray-600 text-center">Vivimos en un mundo que cree tener todas las respuestas. Pero yo estoy aquí para recordarles lo que sentíamos cuando aún creíamos en dragones, en mundos invisibles y en puertas secretas. La magia no es un truco: es un puente hacia esa parte nuestra que nunca debería haber crecido del todo.</p>
+</div>
+</div>
+</div>
+<div class="flex justify-center mt-8 space-x-6">
+<button class="bg-primary text-white px-6 py-3 rounded-button text-lg font-bold shadow-lg hover:bg-opacity-90 transition-all whitespace-nowrap">
+Contactar
+</button>
+<button class="bg-white text-primary border-2 border-primary px-6 py-3 rounded-button text-lg font-bold shadow-lg hover:bg-gray-50 transition-all whitespace-nowrap">
+Ver Experiencia
+</button>
+</div>
+<div class="absolute bottom-20 right-8">
+<div class="w-64 h-64 rounded-full overflow-hidden border-4 border-primary shadow-xl">
+<div class="w-full h-full">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/881b6e4f780ad6ceeff0207a69cf9454.jpeg" alt="SerMagic" class="w-full h-full object-cover">
+</div>
+</div>
+</div>
+</div>
+<!-- Pantalla Galería -->
+<div id="galeria" class="screen p-8 bg-white">
+<h2 class="text-4xl font-bold text-center mb-8 text-gray-800">Galería Mágica</h2>
+<p class="text-xl text-center mb-8 max-w-3xl mx-auto text-gray-600">Momentos capturados durante mis actuaciones en diferentes eventos y escenarios. Cada imagen representa experiencias llenas de magia y asombro.</p>
+<div class="grid grid-cols-3 gap-6 max-w-5xl mx-auto">
+<!-- Imagen 1 -->
+<div class="relative overflow-hidden rounded-lg shadow-md group">
+<div id="corporateEventSlider" class="h-64 w-full">
+<div class="h-full w-full absolute transition-opacity duration-500" style="background-image: url('https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/7119795566307a74496961ffcc77dd02.jpeg'); background-size: cover; background-position: center;"></div>
+<div class="h-full w-full absolute transition-opacity duration-500 opacity-0" style="background-image: url('https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/7eb5312739fb39ae32022c001e5bcd98.jpeg'); background-size: cover; background-position: center;"></div>
+<div class="h-full w-full absolute transition-opacity duration-500 opacity-0" style="background-image: url('https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/91d5926b2f593c5a4a8ea61f418255fc.jpeg'); background-size: cover; background-position: center;"></div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-80 transition-opacity flex flex-col justify-end p-4">
+<h3 class="text-white font-bold text-lg">Actuación en evento corporativo</h3>
+<p class="text-white text-sm">BMW Serie 5</p>
+<p class="text-white text-xs">Presentación con efectos mágicos personalizados</p>
+</div>
+</div>
+<!-- Imagen 2 -->
+<div class="relative overflow-hidden rounded-lg shadow-md group">
+<div class="h-64 w-full" style="background-image: url('https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/fab82a4f2b16249261bd789eda21bd01.jpeg'); background-size: cover; background-position: center;"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-80 transition-opacity flex flex-col justify-end p-4">
+<h3 class="text-white font-bold text-lg">Magia de cerca en cóctel</h3>
+<p class="text-white text-sm">Cocktail Magic</p>
+<p class="text-white text-xs">Asombro a centímetros de distancia</p>
+</div>
+</div>
+<!-- Imagen 3 -->
+<div class="relative overflow-hidden rounded-lg shadow-md group">
+<div class="h-64 w-full" style="background-image: url('https://readdy.ai/api/search-image?query=stage%20magic%20show%20with%20dramatic%20lighting%2C%20illusionist%20performing%20on%20stage%2C%20theatrical%20performance%2C%20professional%20photography%2C%20no%20faces%20visible&width=400&height=300&seq=5&orientation=landscape'); background-size: cover; background-position: center;"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-80 transition-opacity flex flex-col justify-end p-4">
+<h3 class="text-white font-bold text-lg">Show de escenario</h3>
+<p class="text-white text-sm">Teatro Mágico</p>
+<p class="text-white text-xs">Gran ilusionismo para todos los públicos</p>
+</div>
+</div>
+<!-- Imagen 4 -->
+<div class="relative overflow-hidden rounded-lg shadow-md group">
+<div class="h-64 w-full" style="background-image: url('https://readdy.ai/api/search-image?query=television%20studio%20with%20magician%20performing%20trick%2C%20tv%20set%20with%20cameras%20and%20lights%2C%20professional%20photography%2C%20no%20faces%20visible&width=400&height=300&seq=6&orientation=landscape'); background-size: cover; background-position: center;"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-80 transition-opacity flex flex-col justify-end p-4">
+<h3 class="text-white font-bold text-lg">Aparición en televisión</h3>
+<p class="text-white text-sm">Programa Redes</p>
+<p class="text-white text-xs">Con Eduardo Punset en TV2</p>
+</div>
+</div>
+<!-- Imagen 5 -->
+<div class="relative overflow-hidden rounded-lg shadow-md group">
+<div id="workshopSlider" class="h-64 w-full">
+<div class="h-full w-full absolute transition-opacity duration-500" style="background-image: url('https://readdy.ai/api/search-image?query=corporate%20workshop%20with%20people%20learning%20magic%20tricks%2C%20business%20setting%2C%20hands%20practicing%20card%20manipulation%2C%20professional%20photography%2C%20no%20faces%20visible&width=400&height=300&seq=7&orientation=landscape'); background-size: cover; background-position: center;"></div>
+<div class="h-full w-full absolute transition-opacity duration-500 opacity-0" style="background-image: url('https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/64c73510337613679be18327ca3fe785.jpeg'); background-size: cover; background-position: center;"></div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-80 transition-opacity flex flex-col justify-end p-4">
+<h3 class="text-white font-bold text-lg">Workshop corporativo</h3>
+<p class="text-white text-sm">Magic Workshop</p>
+<p class="text-white text-xs">Aprendiendo los secretos del ilusionismo</p>
+</div>
+</div>
+<!-- Imagen 6 -->
+<div class="relative overflow-hidden rounded-lg shadow-md group">
+<div class="h-64 w-full" style="background-image: url('https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/d3923d442c52a1751365d22de9d8f5b8.jpeg'); background-size: cover; background-position: center;"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-80 transition-opacity flex flex-col justify-end p-4">
+<h3 class="text-white font-bold text-lg">Campaña publicitaria</h3>
+<p class="text-white text-sm">Campaña Havana Club</p>
+<p class="text-white text-xs">Récord nacional de duración en promociones</p>
+</div>
+</div>
+</div>
+<div class="text-center mt-8">
+<a href="https://#contacto" data-readdy="true">
+<button class="bg-primary text-white px-6 py-3 rounded-button text-lg font-bold shadow-lg hover:bg-opacity-90 transition-all whitespace-nowrap">
+Solicita tu evento mágico
+</button>
+</a>
+</div>
+</div>
+<!-- Pantalla Experiencia -->
+<div id="experiencia" class="screen p-8 bg-white">
+<h2 class="text-4xl font-bold text-center mb-8 text-gray-800">Experiencia Profesional</h2>
+<p class="text-xl text-center mb-8 max-w-3xl mx-auto text-gray-600">A lo largo de mi carrera, he tenido el privilegio de colaborar con prestigiosas marcas y participar en diversos programas y eventos. <span class="text-primary cursor-pointer hover:underline" id="showBrands">Ver marcas colaboradoras</span></p>
+<div id="brandsOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+<div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 relative">
+<button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700" onclick="toggleBrands()">
+<i class="ri-close-line text-2xl"></i>
+</button>
+<h3 class="text-2xl font-bold mb-6 text-center">Marcas que han confiado en SerMagic</h3>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+<div class="text-gray-700 text-center py-2">Real Club de Polo</div>
+<div class="text-gray-700 text-center py-2">Can Palou</div>
+<div class="text-gray-700 text-center py-2">Focus</div>
+<div class="text-gray-700 text-center py-2">Redes TV2</div>
+<div class="text-gray-700 text-center py-2">ASICS</div>
+<div class="text-gray-700 text-center py-2">Ferrari</div>
+<div class="text-gray-700 text-center py-2">BMW</div>
+<div class="text-gray-700 text-center py-2">Jameson</div>
+<div class="text-gray-700 text-center py-2">Magia Borrás</div>
+<div class="text-gray-700 text-center py-2">SONY</div>
+<div class="text-gray-700 text-center py-2">HP</div>
+<div class="text-gray-700 text-center py-2">Cacaolat</div>
+<div class="text-gray-700 text-center py-2">Coca-Cola</div>
+<div class="text-gray-700 text-center py-2">J&B</div>
+<div class="text-gray-700 text-center py-2">Metropolitan</div>
+<div class="text-gray-700 text-center py-2">VollsDamm</div>
+<div class="text-gray-700 text-center py-2">Philip Morris</div>
+<div class="text-gray-700 text-center py-2">Circodelia</div>
+</div>
+</div>
+</div>
+<div class="brand-carousel-container w-full mb-12 overflow-hidden bg-gray-50 py-8">
+<div class="brand-carousel flex items-center gap-12 animate-scroll" style="padding-right: 12px;">
+<div class="flex items-center gap-12 min-w-max">
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/82523d9854edc3671619616b8416240a.jpeg" alt="Real Club de Polo de Barcelona" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/c53562f369d16c17da5de4e9ade72e57.jpeg" alt="Can Palou" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/c5a3a734c244b28be8c7bf5d1d461d40.jpeg" alt="Redes TV2" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://readdy.ai/api/search-image?query=asics%20logo%2C%20sports%20brand%20design%20on%20white%20background%2C%20professional%20branding&width=160&height=96&seq=5&orientation=landscape" alt="ASICS" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/fd1316f42e9b416d1f4b619f51b4e673.jpeg" alt="Ferrari" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/c49effe28765da2dfa8614ec129f1f57.jpeg" alt="BMW" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://readdy.ai/api/search-image?query=jameson%20irish%20whiskey%20logo%2C%20alcohol%20brand%20design%20on%20white%20background%2C%20professional%20branding&width=160&height=96&seq=8&orientation=landscape" alt="Jameson" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/09cc04fac7566ad63a7e827d66016893.jpeg" alt="Voll-Damm" class="max-w-full max-h-full object-contain">
+</div>
+</div>
+<div class="flex items-center gap-12 min-w-max">
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/43d0195c12fa536d27f4b623d6c6a916.jpeg" alt="Magia Borrás" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/9de97a6d18028d0671dc91b1adb22c69.jpeg" alt="SONY" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://readdy.ai/api/search-image?query=hp%20hewlett%20packard%20logo%2C%20technology%20brand%20design%20on%20white%20background%2C%20professional%20branding&width=160&height=96&seq=11&orientation=landscape" alt="HP" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/3e49c6dd5880f38cff68ae856ffdc73b.png" alt="Cacaolat" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/1e935fb7c13689c4a1c87782d582fdc6.jpeg" alt="Coca-Cola" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/7eb6afb1f436418d69452603512b937b.webp" alt="Focus" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://readdy.ai/api/search-image?query=j&b whiskey logo, alcohol brand design on white background, professional branding&width=160&height=96&seq=14&orientation=landscape" alt="J&B" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://readdy.ai/api/search-image?query=metropolitan%20gym%20logo%2C%20fitness%20brand%20design%20on%20white%20background%2C%20professional%20branding&width=160&height=96&seq=15&orientation=landscape" alt="Metropolitan" class="max-w-full max-h-full object-contain">
+</div>
+<div class="flex items-center justify-center p-4 bg-white rounded-lg shadow-sm w-40 h-24">
+<img src="https://readdy.ai/api/search-image?query=voll%20damm%20beer%20logo%2C%20brewery%20brand%20design%20on%20white%20background%2C%20professional%20branding&width=160&height=96&seq=16&orientation=landscape" alt="VollsDamm" class="max-w-full max-h-full object-contain">
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-8 max-w-5xl mx-auto">
+<!-- Columna 1: Campañas Publicitarias -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+<h3 class="text-xl font-bold mb-4 text-primary">Campañas Publicitarias</h3>
+<div class="mb-4">
+<h4 class="font-bold">Phillip Morris - Promoción L&M</h4>
+<p class="text-sm text-gray-600">Barcelona, Bilbao, Castellón, Girona, Lleida, Madrid, Málaga, Valencia, Zaragoza</p>
+</div>
+<div class="mb-4">
+<h4 class="font-bold">J&B</h4>
+<p class="text-sm text-gray-600">Salas y locales de todo el territorio Nacional</p>
+</div>
+<div class="mb-4">
+<h4 class="font-bold">Havana Club</h4>
+<p class="text-sm text-gray-600">Récord nacional de duración en promociones (4 años)</p>
+</div>
+<div class="mb-4">
+<h4 class="font-bold">Coca-Cola</h4>
+<p class="text-sm text-gray-600">Eventos especiales y presentaciones de producto</p>
+</div>
+<div>
+<h4 class="font-bold">Nestlé</h4>
+<p class="text-sm text-gray-600">Campaña promocional nacional</p>
+</div>
+</div>
+<!-- Columna 2: Presentaciones -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+<h3 class="text-xl font-bold mb-4 text-primary">Presentaciones</h3>
+<div class="mb-4">
+<h4 class="font-bold">BMW</h4>
+<p class="text-sm text-gray-600">Presentación del coche Serie 5 con efectos mágicos</p>
+</div>
+<div class="mb-4">
+<h4 class="font-bold">Mercedes-Benz</h4>
+<p class="text-sm text-gray-600">Lanzamiento exclusivo de nuevo modelo</p>
+</div>
+<div class="mb-4">
+<h4 class="font-bold">Feria Internacional de Barcelona</h4>
+<p class="text-sm text-gray-600">Presentaciones corporativas y eventos especiales</p>
+</div>
+<div>
+<h4 class="font-bold">Mobile World Congress</h4>
+<p class="text-sm text-gray-600">Presentaciones tecnológicas innovadoras</p>
+</div>
+</div>
+<!-- Columna 3: Radio, Televisión y Asesoramiento -->
+<div class="bg-white p-6 rounded-lg shadow-md">
+<h3 class="text-xl font-bold mb-4 text-primary">Radio, TV y Asesoramiento</h3>
+<div class="mb-4">
+<h4 class="font-bold">Programa Redes con Eduardo Punset</h4>
+<p class="text-sm text-gray-600">TV2</p>
+</div>
+<div class="mb-4">
+<h4 class="font-bold">Los Lunnis</h4>
+<p class="text-sm text-gray-600">TVE con Lucrecia</p>
+</div>
+<div class="mb-4">
+<h4 class="font-bold">Barcelona Magazine</h4>
+<p class="text-sm text-gray-600">City TV</p>
+</div>
+<div class="mb-4">
+<h4 class="font-bold">Programa LEONART Magic Street</h4>
+<p class="text-sm text-gray-600">Programa de ciencia</p>
+</div>
+<div>
+<h4 class="font-bold">Magia Borras</h4>
+<p class="text-sm text-gray-600">Anuncio TV DVD interior juegos</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Pantalla Contacto -->
+<div id="contacto" class="screen p-8 bg-white">
+<h2 class="text-4xl font-bold text-center mb-8 text-gray-800">Contacto</h2>
+<div class="flex max-w-5xl mx-auto">
+<div class="w-1/2 pr-8">
+<p class="text-lg mb-6 text-gray-600">¿Interesado en contratar mis servicios o tienes alguna pregunta? No dudes en contactarme. Estaré encantado de ayudarte a crear una experiencia mágica inolvidable para tu evento.</p>
+<div class="mb-6">
+<h3 class="text-xl font-bold mb-2">Información de contacto</h3>
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-phone-line"></i>
+</div>
+<span class="text-gray-700">+34 600 665 976</span>
+</div>
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-mail-line"></i>
+</div>
+<span class="text-gray-700">info@sermagic.com</span>
+</div>
+<div class="flex items-center mb-2">
+<a href="https://wa.me/34600665976" target="_blank" class="flex items-center text-green-600 hover:text-green-700 transition-colors">
+<div class="w-8 h-8 flex items-center justify-center">
+<i class="ri-whatsapp-fill text-xl"></i>
+</div>
+<span>Contactar por WhatsApp</span>
+</a>
+</div>
+<div class="flex items-center">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-map-pin-line"></i>
+</div>
+<span class="text-gray-700">Barcelona, España (Disponible para viajar)</span>
+</div>
+</div>
+<div>
+<h3 class="text-xl font-bold mb-2">Sígueme en redes sociales</h3>
+<div class="flex space-x-4">
+<a href="https://www.instagram.com/p/Bo2OYHdHZzM/" data-readdy="true" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<i class="ri-instagram-line"></i>
+</a>
+<a href="#" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<i class="ri-facebook-line"></i>
+</a>
+<a href="https://www.youtube.com/watch?v=Wj9pfxNLpyo" data-readdy="true" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<i class="ri-youtube-line"></i>
+</a>
+<a href="https://sermagic.blogspot.com" data-readdy="true" class="w-10 h-10 bg-primary bg-opacity-10 rounded-full flex items-center justify-center text-primary hover:bg-opacity-20 transition-all">
+<i class="ri-twitter-x-line"></i>
+</a>
+</div>
+</div>
+</div>
+<div class="w-1/2">
+<form action="" method="POST" class="bg-white p-6 rounded-lg shadow-md" id="contactForm">
+<div class="mb-4">
+<label class="block text-gray-700 font-medium mb-2" for="nombre">Nombre</label>
+<input type="text" id="nombre" name="nombre" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Tu nombre">
+</div>
+<div class="mb-4">
+<label class="block text-gray-700 font-medium mb-2" for="email">Email</label>
+<input type="email" id="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Tu email">
+</div>
+<div class="mb-4">
+<label class="block text-gray-700 font-medium mb-2" for="telefono">Teléfono</label>
+<input type="tel" id="telefono" name="telefono" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Tu teléfono">
+</div>
+<div class="mb-4">
+<label class="block text-gray-700 font-medium mb-2" for="evento">Tipo de evento</label>
+<div class="relative">
+<select id="evento" name="evento" required class="w-full px-4 py-2 border border-gray-300 rounded appearance-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent pr-8">
+<option value="" disabled selected>Selecciona el tipo de evento</option>
+<option value="corporativo">Evento corporativo</option>
+<option value="privado">Fiesta privada</option>
+<option value="boda">Boda</option>
+<option value="feria">Feria o exposición</option>
+<option value="workshop">Workshop</option>
+<option value="otro">Otro</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+<i class="ri-arrow-down-s-line text-gray-400"></i>
+</div>
+</div>
+</div>
+<div class="mb-6">
+<label class="block text-gray-700 font-medium mb-2" for="mensaje">Mensaje</label>
+<textarea id="mensaje" name="mensaje" rows="4" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Cuéntame sobre tu evento"></textarea>
+</div>
+<button type="submit" class="w-full bg-primary text-white py-3 rounded-button font-bold hover:bg-opacity-90 transition-all whitespace-nowrap">Enviar mensaje</button>
+</form>
+<div id="successMessage" class="hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-xl z-50">
+<div class="text-center">
+<i class="ri-checkbox-circle-line text-green-500 text-5xl mb-4"></i>
+<h3 class="text-xl font-bold mb-2">¡Mensaje enviado!</h3>
+<p class="text-gray-600 mb-4">Gracias por contactar. Te responderemos lo antes posible.</p>
+<button onclick="closeSuccessMessage()" class="bg-primary text-white px-6 py-2 rounded-button hover:bg-opacity-90 transition-all whitespace-nowrap">Aceptar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script id="navigation-script">
+document.addEventListener('DOMContentLoaded', function() {
+const chips = document.querySelectorAll('.casino-chip');
+const screens = document.querySelectorAll('.screen');
+// Remove Instagram live check since we don't have actual API endpoint
+const mediaContainer = document.getElementById('mediaContainer');
+if (mediaContainer) {
+const imageContainer = document.getElementById('imageContainer');
+if (imageContainer) {
+imageContainer.classList.remove('hidden');
+}
+}
+if (chips && chips.length > 0) {
+chips.forEach(chip => {
+chip.addEventListener('click', function() {
+// Remove active class from all chips
+chips.forEach(c => c.classList.remove('active'));
+// Add active class to current chip
+this.classList.add('active');
+// Get target screen
+const target = this.getAttribute('data-target');
+if (target) {
+// Remove active class from all screens
+screens.forEach(screen => screen.classList.remove('active'));
+// Add active class to target screen
+const targetScreen = document.getElementById(target);
+if (targetScreen) {
+targetScreen.classList.add('active');
+}
+}
+});
+});
+}
+});
+</script>
+<script id="service-navigation-script">
+document.addEventListener('DOMContentLoaded', function() {
+const serviceButtons = document.querySelectorAll('#inicio button');
+const serviceChip = document.querySelector('[data-target="servicios"]');
+if (serviceButtons && serviceButtons.length > 0 && serviceChip) {
+serviceButtons.forEach(button => {
+if (button.textContent.trim() === 'Descubre mis Servicios') {
+button.addEventListener('click', function() {
+serviceChip.click();
+});
+}
+});
+}
+});
+</script>
+<script id="form-submit-handler">
+document.addEventListener('DOMContentLoaded', function() {
+const form = document.getElementById('contactForm');
+const successMessage = document.getElementById('successMessage');
+if (form && successMessage) {
+form.addEventListener('submit', function(e) {
+e.preventDefault();
+const formData = new FormData(form);
+const data = {
+nombre: formData.get('nombre'),
+email: formData.get('email'),
+telefono: formData.get('telefono'),
+evento: document.getElementById('evento').value,
+mensaje: document.getElementById('mensaje').value
+};
+fetch('', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/x-www-form-urlencoded',
+},
+body: new URLSearchParams(data).toString()
+})
+.then(response => {
+if (response.ok) {
+form.reset();
+successMessage.classList.remove('hidden');
+} else {
+throw new Error('Error al enviar el formulario');
+}
+})
+.catch(error => {
+console.error('Error:', error);
+});
+});
+}
+});
+function closeSuccessMessage() {
+const successMessage = document.getElementById('successMessage');
+if (successMessage) {
+successMessage.classList.add('hidden');
+}
+}
+</script>
+<script id="brands-overlay">
+document.addEventListener('DOMContentLoaded', function() {
+const showBrands = document.getElementById('showBrands');
+const brandsOverlay = document.getElementById('brandsOverlay');
+if (showBrands && brandsOverlay) {
+function toggleBrands() {
+brandsOverlay.classList.toggle('hidden');
+document.body.style.overflow = !brandsOverlay.classList.contains('hidden') ? 'hidden' : '';
+}
+showBrands.addEventListener('click', toggleBrands);
+brandsOverlay.addEventListener('click', function(e) {
+if (e.target === brandsOverlay) {
+toggleBrands();
+}
+});
+window.toggleBrands = toggleBrands;
+}
+});
+</script>
+<script id="gallery-hover-effect">
+document.addEventListener('DOMContentLoaded', function() {
+const galleryItems = document.querySelectorAll('#galeria .group');
+if (galleryItems && galleryItems.length > 0) {
+galleryItems.forEach(item => {
+const overlay = item.querySelector('div.absolute');
+if (overlay) {
+item.addEventListener('mouseenter', function() {
+overlay.classList.add('opacity-80');
+overlay.classList.remove('opacity-0');
+});
+item.addEventListener('mouseleave', function() {
+overlay.classList.remove('opacity-80');
+overlay.classList.add('opacity-0');
+});
+}
+});
+}
+// Image rotation for corporate event
+const corporateEventSlider = document.getElementById('corporateEventSlider');
+if (corporateEventSlider) {
+const images = corporateEventSlider.children;
+let currentIndex = 0;
+function rotateImages() {
+for (let i = 0; i < images.length; i++) {
+images[i].classList.add('opacity-0');
+}
+images[currentIndex].classList.remove('opacity-0');
+currentIndex = (currentIndex + 1) % images.length;
+}
+setInterval(rotateImages, 2000);
+}
+// Image rotation for workshop
+const workshopSlider = document.getElementById('workshopSlider');
+if (workshopSlider) {
+const workshopImages = workshopSlider.children;
+let workshopIndex = 0;
+function rotateWorkshopImages() {
+for (let i = 0; i < workshopImages.length; i++) {
+workshopImages[i].classList.add('opacity-0');
+}
+workshopImages[workshopIndex].classList.remove('opacity-0');
+workshopIndex = (workshopIndex + 1) % workshopImages.length;
+}
+setInterval(rotateWorkshopImages, 5000);
+}
+});
+</script>
+<style>
+@keyframes scroll {
+0% {
+transform: translateX(0);
+}
+100% {
+transform: translateX(-50%);
+}
+}
+.animate-scroll {
+animation: scroll 30s linear infinite;
+will-change: transform;
+}
+.brand-carousel {
+display: flex;
+width: fit-content;
+}
+.brand-carousel > div {
+flex-shrink: 0;
+}
+.brand-carousel-container:hover .animate-scroll {
+animation-play-state: paused;
+}
+@keyframes float {
+0% { transform: translateY(0px); }
+50% { transform: translateY(-10px); }
+100% { transform: translateY(0px); }
+}
+.float-animation {
+animation: float 3s ease-in-out infinite;
+}
+</style>
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/34600665976" target="_blank" class="absolute bottom-6 right-32 bg-green-500 text-white w-16 h-16 flex items-center justify-center rounded-full shadow-lg hover:bg-green-600 transition-colors z-50 group float-animation">
+<i class="ri-whatsapp-fill text-3xl"></i>
+<span class="absolute right-20 bg-white text-gray-800 px-4 py-2 rounded-lg shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Contactar por WhatsApp</span>
+</a>
+</body>
+</html>

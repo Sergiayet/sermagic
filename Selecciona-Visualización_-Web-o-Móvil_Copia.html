@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elegir Visualización</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#FF7F50',secondary:'#FFA07A'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: 'Poppins', sans-serif;
+min-height: 100vh;
+}
+@keyframes float {
+0% {
+transform: translateY(0px);
+}
+50% {
+transform: translateY(-10px);
+}
+100% {
+transform: translateY(0px);
+}
+}
+.floating-logo {
+animation: float 3s ease-in-out infinite;
+}
+.option-card {
+transition: all 0.3s ease;
+}
+.option-card:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 25px rgba(255, 127, 80, 0.2);
+}
+.option-card:active {
+transform: translateY(0);
+}
+</style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4" style="background-image: url('https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/a8bc9fa06a1352c5d44a5506fb8efa21.png'); background-repeat: repeat; background-size: 300px;">
+<div class="text-center mb-12">
+<div class="floating-logo mb-2">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/94b269337303e48999ca488354af8596.jpeg" alt="Logo" class="h-16 mx-auto">
+</div>
+<p class="text-gray-600 text-lg">Selecciona cómo deseas visualizar</p>
+</div>
+<div class="w-full max-w-3xl flex flex-col md:flex-row gap-6 justify-center items-center">
+<!-- Opción Web -->
+<div class="option-card w-full md:w-1/2 max-w-xs bg-white border-2 border-primary/20 rounded-button p-8 flex flex-col items-center cursor-pointer hover:bg-primary/5">
+<div class="w-24 h-24 flex items-center justify-center mb-6 bg-primary/10 rounded-full">
+<i class="ri-computer-line ri-3x text-primary"></i>
+</div>
+<h2 class="text-2xl font-semibold text-gray-800 mb-2">Web</h2>
+<p class="text-gray-600 text-center">Visualiza en pantalla completa con todas las funcionalidades</p>
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/8bf8e428-f513-4876-907b-d89e5015381f" data-readdy="true">
+<button class="mt-6 bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-button font-medium transition-all">
+Seleccionar
+</button>
+</a>
+</div>
+<!-- Opción Móvil -->
+<div class="option-card w-full md:w-1/2 max-w-xs bg-white border-2 border-primary/20 rounded-button p-8 flex flex-col items-center cursor-pointer hover:bg-primary/5">
+<div class="w-24 h-24 flex items-center justify-center mb-6 bg-primary/10 rounded-full">
+<i class="ri-smartphone-line ri-3x text-primary"></i>
+</div>
+<h2 class="text-2xl font-semibold text-gray-800 mb-2">Móvil</h2>
+<p class="text-gray-600 text-center">Experiencia optimizada para dispositivos móviles</p>
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/8bf8e428-f513-4876-907b-d89e5015381f" data-readdy="true">
+<button class="mt-6 bg-primary hover:bg-primary/90 text-white py-3 px-8 rounded-button font-medium transition-all">
+Seleccionar
+</button>
+</a>
+</div>
+</div>
+<div class="mt-12 text-center text-gray-500">
+<p>© 2025 - Todos los derechos reservados</p>
+<p class="text-sm mt-1">Jueves, 5 de junio de 2025</p>
+</div>
+<script id="interaction-script">
+document.addEventListener('DOMContentLoaded', function() {
+const optionCards = document.querySelectorAll('.option-card');
+optionCards.forEach(card => {
+card.addEventListener('click', function() {
+const button = this.querySelector('button');
+const link = this.querySelector('a');
+if(link) {
+const option = this.querySelector('h2').textContent;
+button.classList.add('bg-secondary');
+setTimeout(() => {
+button.classList.remove('bg-secondary');
+window.location.href = link.href;
+}, 200);
+}
+});
+});
+});
+</script>
+</body>
+</html>

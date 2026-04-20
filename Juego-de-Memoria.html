@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego de Memoria</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#F97316',secondary:'#4F46E5'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: 'Nunito', sans-serif;
+touch-action: manipulation;
+}
+@keyframes floatUpAndFade {
+0% {
+transform: translate(-50%, 0) scale(1);
+opacity: 1;
+}
+100% {
+transform: translate(-50%, -200px) scale(0.5);
+opacity: 0;
+}
+}
+.floating-avatar {
+position: fixed;
+left: 50%;
+bottom: 40%;
+width: 120px;
+height: 120px;
+z-index: 30;
+pointer-events: none;
+animation: floatUpAndFade 1.5s ease-out forwards;
+}
+@keyframes floating {
+0% { transform: translateY(0px) rotate(0deg); }
+50% { transform: translateY(-10px) rotate(0deg); }
+100% { transform: translateY(0px) rotate(0deg); }
+}
+@keyframes spinRight {
+0% { transform: translateY(0px) rotate(0deg); }
+100% { transform: translateY(0px) rotate(360deg) translateX(20px); }
+}
+.logo-animation {
+animation: floating 2s ease-in-out infinite;
+}
+.logo-spin {
+animation: spinRight 0.5s ease-out forwards;
+}
+.card {
+perspective: 1000px;
+transform-style: preserve-3d;
+transition: transform 0.5s;
+}
+.card-inner {
+position: relative;
+width: 100%;
+height: 100%;
+transform-style: preserve-3d;
+transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card.flipped .card-inner {
+transform: rotateY(180deg);
+}
+.card-front, .card-back {
+position: absolute;
+width: 100%;
+height: 100%;
+backface-visibility: hidden;
+border-radius: 8px;
+transform-style: preserve-3d;
+}
+.card-back {
+transform: rotateY(180deg);
+}
+.transition-transform {
+transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes pulse {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.05); }
+}
+.pulse-animation {
+animation: pulse 0.5s;
+}
+@keyframes shake {
+0%, 100% { transform: translateX(0); }
+20%, 60% { transform: translateX(-5px); }
+40%, 80% { transform: translateX(5px); }
+}
+.shake-animation {
+animation: shake 0.5s;
+}
+@keyframes celebrate {
+0% { transform: scale(1); opacity: 1; }
+50% { transform: scale(1.2); opacity: 0.8; }
+100% { transform: scale(1); opacity: 1; }
+}
+.celebrate-animation {
+animation: celebrate 0.8s;
+}
+</style>
+</head>
+<body class="text-gray-800 h-screen flex flex-col" style="background-image: url('https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/85e5b0e5124ee2f4b88c1a71b35db6d6.png'); background-size: 800px; background-repeat: repeat;">
+<!-- Navbar -->
+<nav class="fixed top-0 w-full bg-primary text-white shadow-md z-10 px-4 py-3">
+<div class="flex justify-between items-center">
+<div class="flex items-center space-x-2">
+<div class="w-8 h-8 flex items-center justify-center">
+<i class="ri-time-line ri-lg"></i>
+</div>
+<span id="timer" class="text-sm font-medium">00:00</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="text-xs font-medium">Jugadores: <span id="player-count">1</span></span>
+<span id="moves" class="text-lg font-bold">0</span>
+</div>
+<div class="flex items-center space-x-2">
+<span id="score" class="text-sm font-medium">0</span>
+<div class="w-8 h-8 flex items-center justify-center">
+<i class="ri-star-line ri-lg"></i>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main content -->
+<main class="flex-1 pt-16 pb-16 px-4 flex flex-col justify-center items-center">
+<div id="main-menu" class="w-full max-w-sm flex flex-col items-center">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/ae1bf652725d0af36b1bbe18c19826da.jpeg" alt="SER Magic Logo" class="h-24 mt-12 mb-8 logo-animation">
+<div class="w-full bg-white rounded-lg p-6 shadow-md mb-6">
+<h2 class="text-2xl font-['Pacifico'] text-primary mb-4">Juego de Memoria</h2>
+<div class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Número de Jugadores</label>
+<div class="grid grid-cols-3 gap-3">
+<button class="player-btn bg-primary text-white py-2 rounded-button" data-players="1">1 Jugador</button>
+<button class="player-btn bg-white border border-gray-300 text-gray-700 py-2 rounded-button" data-players="2">2 Jugadores</button>
+<button class="player-btn bg-white border border-gray-300 text-gray-700 py-2 rounded-button" data-players="3">3 Jugadores</button>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Nivel de Dificultad</label>
+<div class="grid grid-cols-3 gap-3">
+<button class="level-btn bg-primary text-white py-2 rounded-button" data-level="1">Fácil</button>
+<button class="level-btn bg-white border border-gray-300 text-gray-700 py-2 rounded-button" data-level="2">Medio</button>
+<button class="level-btn bg-white border border-gray-300 text-gray-700 py-2 rounded-button" data-level="3">Difícil</button>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Categoría de Cartas</label>
+<div class="grid grid-cols-1 gap-3">
+<button class="category-btn bg-primary text-white py-2 rounded-button" data-category="performances">Actuaciones</button>
+<button class="category-btn bg-white border border-gray-300 text-gray-700 py-2 rounded-button" data-category="magic">Objetos Mágicos</button>
+<button class="category-btn bg-white border border-gray-300 text-gray-700 py-2 rounded-button" data-category="brands">Marcas Colaboradoras</button>
+</div>
+</div>
+</div>
+</div>
+<button id="start-game" class="w-full bg-primary text-white py-3 rounded-button font-medium text-lg">
+Comenzar Juego
+</button>
+</div>
+<div id="game-container" class="w-full max-w-sm hidden">
+<div class="w-full mb-4 flex justify-between items-center">
+<img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/ae1bf652725d0af36b1bbe18c19826da.jpeg" alt="SER Magic Logo" class="h-12">
+<button id="restart-btn" class="text-primary flex items-center space-x-1 cursor-pointer">
+<span class="text-sm">Reiniciar</span>
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-restart-line"></i>
+</div>
+</button>
+</div>
+<div id="game-board" class="w-full grid grid-cols-4 gap-2 mb-4">
+<!-- Cards will be inserted here by JavaScript -->
+</div>
+</div>
+</main>
+<!-- Tabbar -->
+<div class="fixed bottom-0 w-full bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-10">
+<div class="grid grid-cols-3 h-16">
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/c82bf980-bef6-4815-9125-9565aff6210b" data-readdy="true" class="flex flex-col items-center justify-center space-y-1 cursor-pointer">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-home-line ri-lg"></i>
+</div>
+<span class="text-xs">Inicio</span>
+</a>
+<button id="pause-btn" class="flex flex-col items-center justify-center space-y-1 cursor-pointer">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-pause-line ri-lg"></i>
+</div>
+<span class="text-xs">Pausa</span>
+</button>
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/c82bf980-bef6-4815-9125-9565aff6210b" data-readdy="true" id="settings-btn" class="flex flex-col items-center justify-center space-y-1 cursor-pointer">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-settings-3-line ri-lg"></i>
+</div>
+<span class="text-xs">Ajustes</span>
+</a>
+</div>
+</div>
+<!-- Victory Modal -->
+<div id="victory-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 hidden">
+<div class="bg-white rounded-lg p-6 w-10/12 max-w-sm">
+<div class="flex flex-col items-center">
+<div class="w-16 h-16 flex items-center justify-center mb-4 text-yellow-500">
+<i class="ri-trophy-line ri-3x"></i>
+</div>
+<h2 class="text-2xl font-bold text-primary mb-2">¡Felicidades!</h2>
+<p class="text-gray-600 mb-4 text-center">Has completado el juego de memoria</p>
+<div class="grid grid-cols-2 gap-4 w-full mb-6">
+<div class="bg-gray-100 p-3 rounded-lg flex flex-col items-center">
+<span class="text-xs text-gray-500">Tiempo</span>
+<span id="final-time" class="font-bold">00:00</span>
+</div>
+<div class="bg-gray-100 p-3 rounded-lg flex flex-col items-center">
+<span class="text-xs text-gray-500">Movimientos</span>
+<span id="final-moves" class="font-bold">0</span>
+</div>
+</div>
+<div class="flex justify-between w-full">
+<button id="play-again-btn" class="bg-primary text-white py-2 px-4 rounded-button font-medium cursor-pointer">
+Jugar de nuevo
+</button>
+<button id="home-btn" class="border border-gray-300 py-2 px-4 rounded-button font-medium cursor-pointer">
+Inicio
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pause Modal -->
+<div id="pause-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 hidden">
+<div class="bg-white rounded-lg p-6 w-10/12 max-w-sm">
+<div class="flex flex-col items-center">
+<div class="w-16 h-16 flex items-center justify-center mb-4 text-primary">
+<i class="ri-pause-circle-line ri-3x"></i>
+</div>
+<h2 class="text-2xl font-bold text-primary mb-6">Juego Pausado</h2>
+<div class="flex flex-col w-full space-y-3">
+<button id="resume-btn" class="bg-primary text-white py-3 rounded-button font-medium w-full cursor-pointer">
+Continuar
+</button>
+<button id="restart-game-btn" class="border border-gray-300 py-3 rounded-button font-medium w-full cursor-pointer">
+Reiniciar
+</button>
+<button id="exit-btn" class="border border-gray-300 py-3 rounded-button font-medium w-full cursor-pointer">
+Salir
+</button>
+</div>
+</div>
+</div>
+</div>
+<script id="game-logic">
+document.addEventListener('DOMContentLoaded', function() {
+// Game state
+const state = {
+cards: [],
+flippedCards: [],
+matchedPairs: 0,
+totalPairs: 8,
+moves: 0,
+score: 0,
+gameStarted: false,
+gamePaused: false,
+startTime: null,
+elapsedTime: 0,
+timerInterval: null,
+currentPlayer: 1,
+playerScores: [0, 0],
+lastMatchedPlayer: null
+};
+function updateTotalPairs() {
+state.totalPairs = gameConfig.level === 3 ? 16 : 8;
+}
+// Card images - using Stable Diffusion to generate images
+const cardCategories = {
+performances: [
+{
+name: 'lighthouse',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/4f32f0edf4a4d968b639f1ed0f8ba2de.jpeg'
+},
+{
+name: 'outdoor-show',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/95b1753aac03573895c0ec73bd92b5c1.jpeg'
+},
+{
+name: 'magic-show',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/076c5f293dd22ccedf5086e23714ae99.jpeg'
+},
+{
+name: 'wedding-magic',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/917e70be401613f877d03c3f082f90e7.jpeg'
+},
+{
+name: 'havana-club',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/e60fe88d35801ca0ea6e9bc54860ee4b.jpeg'
+},
+{
+name: 'rope-magic',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/01578d4913398519c413f1d48a68cd34.jpeg'
+},
+{
+name: 'magic-box',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/b76c7a4483fa1d3d13750a5d4e9c8116.jpeg'
+},
+{
+name: 'celebration-magic',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/1f132581436490dfee588b2ce0e04f43.jpeg'
+},
+{
+name: 'levitation',
+url: 'https://readdy.ai/api/search-image?query=Magician%20performing%20levitation%20trick%2C%20floating%20in%20air%2C%20dramatic%20stage%20lighting%2C%20mystical%20atmosphere%2C%20professional%20performance%20photography%2C%20centered%20composition%2C%20theatrical%20magic%20moment.&width=120&height=120&seq=12&orientation=squarish'
+},
+{
+name: 'illusion',
+url: 'https://readdy.ai/api/search-image?query=Grand%20illusion%20performance%2C%20magician%20with%20assistant%2C%20elaborate%20stage%20props%2C%20dramatic%20lighting%2C%20theatrical%20atmosphere%2C%20professional%20magic%20show%20photography%2C%20centered%20composition.&width=120&height=120&seq=13&orientation=squarish'
+},
+{
+name: 'mentalism',
+url: 'https://readdy.ai/api/search-image?query=Mentalist%20performer%20on%20stage%2C%20mind%20reading%20performance%2C%20dramatic%20lighting%2C%20mystical%20atmosphere%2C%20professional%20stage%20photography%2C%20centered%20composition%2C%20theatrical%20moment.&width=120&height=120&seq=14&orientation=squarish'
+},
+{
+name: 'escape',
+url: 'https://readdy.ai/api/search-image?query=Escape%20artist%20performance%2C%20dramatic%20chains%20and%20locks%2C%20intense%20stage%20lighting%2C%20theatrical%20atmosphere%2C%20professional%20performance%20photography%2C%20centered%20composition%2C%20suspenseful%20moment.&width=120&height=120&seq=15&orientation=squarish'
+},
+{
+name: 'closeup',
+url: 'https://readdy.ai/api/search-image?query=Close-up%20magician%20performing%20card%20tricks%2C%20intimate%20setting%2C%20perfect%20lighting%2C%20professional%20magic%20photography%2C%20centered%20composition%2C%20detailed%20hand%20movements%20captured.&width=120&height=120&seq=16&orientation=squarish'
+},
+{
+name: 'stage-show',
+url: 'https://readdy.ai/api/search-image?query=Large%20scale%20magic%20show%2C%20elaborate%20stage%20setup%2C%20dramatic%20lighting%20effects%2C%20theatrical%20atmosphere%2C%20professional%20stage%20photography%2C%20centered%20composition%2C%20spectacular%20moment.&width=120&height=120&seq=17&orientation=squarish'
+},
+{
+name: 'finale',
+url: 'https://readdy.ai/api/search-image?query=Magic%20show%20finale%2C%20spectacular%20effects%2C%20standing%20ovation%2C%20dramatic%20stage%20lighting%2C%20theatrical%20atmosphere%2C%20professional%20performance%20photography%2C%20centered%20composition.&width=120&height=120&seq=18&orientation=squarish'
+}
+],
+magic: [
+{
+name: 'wand',
+url: 'https://readdy.ai/api/search-image?query=icon%2C%203D%20rendering%20of%20a%20professional%20magic%20wand%20with%20elegant%20design%2C%20mystical%20glow%2C%20detailed%20craftsmanship%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style.&width=120&height=120&seq=21&orientation=squarish'
+},
+{
+name: 'cards',
+url: 'https://readdy.ai/api/search-image?query=icon%2C%203D%20rendering%20of%20professional%20magic%20playing%20cards%2C%20custom%20design%2C%20elegant%20finish%2C%20detailed%20artwork%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style.&width=120&height=120&seq=22&orientation=squarish'
+},
+{
+name: 'rings',
+url: 'https://readdy.ai/api/search-image?query=icon%2C%203D%20rendering%20of%20professional%20linking%20rings%20with%20silver%20finish%2C%20mystical%20arrangement%2C%20detailed%20craftsmanship%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style.&width=120&height=120&seq=23&orientation=squarish'
+},
+{
+name: 'cups',
+url: 'https://readdy.ai/api/search-image?query=icon%2C%203D%20rendering%20of%20professional%20magic%20cups%20and%20balls%2C%20elegant%20design%2C%20metallic%20finish%2C%20detailed%20craftsmanship%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style.&width=120&height=120&seq=24&orientation=squarish'
+},
+{
+name: 'box',
+url: 'https://readdy.ai/api/search-image?query=icon%2C%203D%20rendering%20of%20professional%20magic%20box%20with%20elegant%20design%2C%20mysterious%20appearance%2C%20detailed%20craftsmanship%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style.&width=120&height=120&seq=25&orientation=squarish'
+},
+{
+name: 'rope',
+url: 'https://readdy.ai/api/search-image?query=icon%2C%203D%20rendering%20of%20professional%20magic%20rope%20with%20elegant%20arrangement%2C%20mystical%20presentation%2C%20detailed%20texture%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style.&width=120&height=120&seq=26&orientation=squarish'
+},
+{
+name: 'coins',
+url: 'https://readdy.ai/api/search-image?query=icon%2C%203D%20rendering%20of%20professional%20magic%20coins%20with%20elegant%20design%2C%20metallic%20shine%2C%20detailed%20craftsmanship%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style.&width=120&height=120&seq=27&orientation=squarish'
+},
+{
+name: 'props',
+url: 'https://readdy.ai/api/search-image?query=icon%2C%203D%20rendering%20of%20professional%20magic%20props%20collection%2C%20elegant%20arrangement%2C%20mysterious%20display%2C%20detailed%20items%2C%20the%20icon%20should%20take%20up%2070%25%20of%20the%20frame%2C%20isolated%20on%20white%20background%2C%20centered%20composition%2C%20soft%20lighting%2C%20subtle%20shadows%2C%20product%20photography%20style.&width=120&height=120&seq=28&orientation=squarish'
+}
+],
+brands: [
+{
+name: 'bmw',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/d21090cc8644354c5d05e03f04de75b3.jpeg'
+},
+{
+name: 'magia-borras',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/43d0195c12fa536d27f4b623d6c6a916.jpeg'
+},
+{
+name: 'coca-cola',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/1e935fb7c13689c4a1c87782d582fdc6.jpeg'
+},
+{
+name: 'voll-damm',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/09cc04fac7566ad63a7e827d66016893.jpeg'
+},
+{
+name: 'ferrari',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/5bf594eae7f0312fdaf65e371024e510.jpeg'
+},
+{
+name: 'sony',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/9de97a6d18028d0671dc91b1adb22c69.jpeg'
+},
+{
+name: 'cacaolat',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/3e49c6dd5880f38cff68ae856ffdc73b.png'
+},
+{
+name: 'can-palou',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/958bf4a7d9b61e39e1b02fa34ae15007.png'
+},
+{
+name: 'reial-club-polo',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/82523d9854edc3671619616b8416240a.jpeg'
+},
+{
+name: 'asics',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/260e19563a3cf652cd7a60431a95a956.webp'
+},
+{
+name: 'iqos',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/a91a3de09d9b3ebd53255202ce4932ce.png'
+},
+{
+name: 'nestle',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/5cf5e189cdf1ac1e938794c02a35e20e.png'
+},
+{
+name: 'tve',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/1dcc05a135274e26c300243ba25ab847.jpeg'
+},
+{
+name: 'custo',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/5a6a5caf7bfb64f7aa3c7d11abc633fe.png'
+},
+{
+name: 'jb',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/cbd81ba02c6bf0af72dfe630c842731e.png'
+},
+{
+name: 'options',
+url: 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/6041889eb8e8ee6985e458bc8b6cbae9.png'
+}
+]
+};
+let cardImages = cardCategories.performances;
+// DOM elements
+const gameBoard = document.getElementById('game-board');
+const movesElement = document.getElementById('moves');
+const scoreElement = document.getElementById('score');
+const timerElement = document.getElementById('timer');
+const restartBtn = document.getElementById('restart-btn');
+const pauseBtn = document.getElementById('pause-btn');
+const settingsBtn = document.getElementById('settings-btn');
+const victoryModal = document.getElementById('victory-modal');
+const finalTimeElement = document.getElementById('final-time');
+const finalMovesElement = document.getElementById('final-moves');
+const playAgainBtn = document.getElementById('play-again-btn');
+const homeBtn = document.getElementById('home-btn');
+const pauseModal = document.getElementById('pause-modal');
+const resumeBtn = document.getElementById('resume-btn');
+const restartGameBtn = document.getElementById('restart-game-btn');
+const exitBtn = document.getElementById('exit-btn');
+// Game configuration
+const gameConfig = {
+players: 1,
+level: 1,
+category: 'performances'
+};
+// Initialize the game
+function initGame() {
+state.cards = [];
+state.flippedCards = [];
+state.matchedPairs = 0;
+state.moves = 0;
+state.score = 0;
+state.gameStarted = false;
+state.gamePaused = false;
+state.startTime = null;
+state.elapsedTime = 0;
+if (state.timerInterval) {
+clearInterval(state.timerInterval);
+state.timerInterval = null;
+}
+// Show main menu
+document.getElementById('main-menu').classList.remove('hidden');
+document.getElementById('game-container').classList.add('hidden');
+updateUI();
+}
+// Start the game with current configuration
+function startGame() {
+// Hide main menu and show game
+document.getElementById('main-menu').classList.add('hidden');
+document.getElementById('game-container').classList.remove('hidden');
+// Update card images based on selected category
+cardImages = cardCategories[gameConfig.category];
+// Update total pairs based on difficulty level
+updateTotalPairs();
+// Create and render cards
+createCards();
+renderCards();
+// Update player count display
+document.getElementById('player-count').textContent = gameConfig.players;
+// Reset player states
+state.currentPlayer = 1;
+state.playerScores = [0, 0, 0];
+state.lastMatchedPlayer = null;
+// Update game container background based on current player
+updatePlayerTurnIndicator();
+// Set up periodic card shuffling for hard difficulty
+if (gameConfig.level === 3) {
+let shuffleInterval = setInterval(() => {
+if (!state.gamePaused && state.gameStarted && state.matchedPairs < state.totalPairs) {
+const unmatchedCards = state.cards.filter(card => !card.isMatched);
+if (unmatchedCards.length > 2) {
+// Shuffle only unmatched and unflipped cards
+const cardsToShuffle = unmatchedCards.filter(card => !card.isFlipped);
+if (cardsToShuffle.length > 2) {
+const shuffledPositions = shuffleArray([...cardsToShuffle]);
+cardsToShuffle.forEach((card, index) => {
+const originalIndex = state.cards.findIndex(c => c.id === card.id);
+state.cards[originalIndex] = shuffledPositions[index];
+});
+renderCards();
+}
+}
+}
+}, 10000); // Shuffle every 10 seconds
+// Clear interval when game ends
+document.addEventListener('gameEnd', () => clearInterval(shuffleInterval));
+}
+}
+function updatePlayerTurnIndicator() {
+const gameContainer = document.getElementById('game-container');
+if (gameConfig.players > 1) {
+let bgColor = '#FFF7ED';
+let textColor = '#F97316';
+if (state.currentPlayer === 2) {
+bgColor = '#F0FDF4';
+textColor = '#22C55E';
+} else if (state.currentPlayer === 3) {
+bgColor = '#FEF9C3';
+textColor = '#CA8A04';
+}
+gameContainer.style.backgroundColor = bgColor;
+document.querySelector('.player-indicator')?.remove();
+const indicator = document.createElement('div');
+indicator.className = 'player-indicator text-center py-2 mb-4 text-lg font-medium';
+indicator.style.color = textColor;
+const playerColors = {
+1: 'Naranja',
+2: 'Verde',
+3: 'Amarillo'
+};
+indicator.textContent = `Turno del ${playerColors[state.currentPlayer]}`;
+gameContainer.insertBefore(indicator, gameContainer.firstChild);
+} else {
+gameContainer.style.backgroundColor = '';
+document.querySelector('.player-indicator')?.remove();
+}
+}
+// Create cards array with pairs
+function createCards() {
+const cardPairs = [];
+// Determine how many pairs to use based on difficulty level
+let pairsToUse = gameConfig.level === 3 ? 16 : 8;
+// Create pairs of cards
+cardImages.slice(0, pairsToUse).forEach((image, index) => {
+// Create two cards with the same image
+const card1 = {
+id: index * 2,
+imageUrl: image.url,
+name: image.name,
+isFlipped: false,
+isMatched: false
+};
+const card2 = {
+id: index * 2 + 1,
+imageUrl: image.url,
+name: image.name,
+isFlipped: false,
+isMatched: false
+};
+cardPairs.push(card1, card2);
+});
+// Shuffle the cards
+state.cards = shuffleArray(cardPairs);
+}
+// Shuffle array using Fisher-Yates algorithm
+function shuffleArray(array) {
+const newArray = [...array];
+for (let i = newArray.length - 1; i > 0; i--) {
+const j = Math.floor(Math.random() * (i + 1));
+[newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+}
+return newArray;
+}
+// Render cards to the game board
+function renderCards() {
+gameBoard.innerHTML = '';
+// Adjust grid columns based on difficulty level
+gameBoard.className = `w-full grid ${gameConfig.level === 3 ? 'grid-cols-4' : 'grid-cols-4'} gap-2 mb-4`;
+state.cards.forEach(card => {
+const cardElement = document.createElement('div');
+cardElement.className = `card ${card.isFlipped ? 'flipped' : ''} ${card.isMatched ? 'matched' : ''} aspect-square cursor-pointer`;
+cardElement.dataset.id = card.id;
+cardElement.innerHTML = `
+<div class="card-inner w-full h-full">
+<div class="card-front flex items-center justify-center bg-white border-2 border-gray-200 shadow-sm">
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-gamepad-line ri-lg"></i>
+</div>
+</div>
+<div class="card-back flex items-center justify-center bg-white border-2 border-primary shadow-sm">
+<img src="${card.imageUrl}" alt="${card.name}" class="w-full h-full object-contain p-2">
+</div>
+</div>
+`;
+cardElement.addEventListener('click', () => handleCardClick(card.id));
+gameBoard.appendChild(cardElement);
+});
+}
+// Handle card click
+function handleCardClick(cardId) {
+// Ignore clicks if game is paused
+if (state.gamePaused) return;
+// Start the timer on first click
+if (!state.gameStarted) {
+startTimer();
+state.gameStarted = true;
+}
+const card = state.cards.find(c => c.id === cardId);
+const cardElement = document.querySelector(`.card[data-id="${cardId}"]`);
+// Ignore if card is already flipped or matched
+if (card.isFlipped || card.isMatched || state.flippedCards.length >= 2) {
+return;
+}
+// Flip the card
+card.isFlipped = true;
+cardElement.classList.add('flipped');
+state.flippedCards.push(card);
+// Check for match if two cards are flipped
+if (state.flippedCards.length === 2) {
+state.moves++;
+updateUI();
+const [card1, card2] = state.flippedCards;
+if (card1.name === card2.name) {
+// Match found
+handleMatch(card1, card2);
+} else {
+// No match
+handleMismatch(card1, card2);
+}
+}
+}
+// Handle matched cards
+function handleMatch(card1, card2) {
+card1.isMatched = true;
+card2.isMatched = true;
+const card1Element = document.querySelector(`.card[data-id="${card1.id}"]`);
+const card2Element = document.querySelector(`.card[data-id="${card2.id}"]`);
+const avatar = document.createElement('img');
+avatar.src = 'https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/06a52424a666abec930312148b806807.png';
+avatar.className = 'floating-avatar';
+document.body.appendChild(avatar);
+setTimeout(() => avatar.remove(), 1500);
+// Add match animation
+card1Element.classList.add('pulse-animation');
+card2Element.classList.add('pulse-animation');
+setTimeout(() => {
+card1Element.classList.remove('pulse-animation');
+card2Element.classList.remove('pulse-animation');
+// Add matched style
+card1Element.classList.add('matched');
+card2Element.classList.add('matched');
+state.matchedPairs++;
+if (gameConfig.players > 1) {
+state.playerScores[state.currentPlayer - 1] += 10;
+state.lastMatchedPlayer = state.currentPlayer;
+} else {
+state.score += 10;
+}
+state.flippedCards = [];
+updateUI();
+// Check if game is complete
+if (state.matchedPairs === state.totalPairs) {
+endGame();
+} else if (gameConfig.players > 1) {
+// If current player didn't get a match, switch to the next player
+if (state.lastMatchedPlayer !== state.currentPlayer) {
+state.currentPlayer = state.currentPlayer === gameConfig.players ? 1 : state.currentPlayer + 1;
+updatePlayerTurnIndicator();
+}
+}
+}, 500);
+}
+// Handle mismatched cards
+function handleMismatch(card1, card2) {
+const card1Element = document.querySelector(`.card[data-id="${card1.id}"]`);
+const card2Element = document.querySelector(`.card[data-id="${card2.id}"]`);
+// Add mismatch animation
+card1Element.classList.add('shake-animation');
+card2Element.classList.add('shake-animation');
+// Set flip back delay based on difficulty level
+let flipBackDelay = 1000;
+if (gameConfig.level === 2) {
+flipBackDelay = 700;
+} else if (gameConfig.level === 3) {
+flipBackDelay = 500;
+}
+setTimeout(() => {
+card1Element.classList.remove('shake-animation');
+card2Element.classList.remove('shake-animation');
+// Flip cards back
+card1.isFlipped = false;
+card2.isFlipped = false;
+// Add transition class for smooth flip back
+card1Element.classList.add('transition-transform');
+card2Element.classList.add('transition-transform');
+card1Element.classList.remove('flipped');
+card2Element.classList.remove('flipped');
+// Remove transition class after animation completes
+setTimeout(() => {
+card1Element.classList.remove('transition-transform');
+card2Element.classList.remove('transition-transform');
+}, 500);
+state.flippedCards = [];
+if (gameConfig.players > 1) {
+// Switch to next player after a mismatch in multiplayer mode
+state.currentPlayer = state.currentPlayer === gameConfig.players ? 1 : state.currentPlayer + 1;
+updatePlayerTurnIndicator();
+} else {
+// Deduct points for wrong match in single player mode
+state.score = Math.max(0, state.score - 1);
+}
+updateUI();
+}, flipBackDelay);
+}
+// Start the timer
+function startTimer() {
+state.startTime = Date.now() - state.elapsedTime;
+state.timerInterval = setInterval(updateTimer, 1000);
+}
+// Pause the timer
+function pauseTimer() {
+if (state.timerInterval) {
+clearInterval(state.timerInterval);
+state.timerInterval = null;
+state.elapsedTime = Date.now() - state.startTime;
+}
+}
+// Resume the timer
+function resumeTimer() {
+if (!state.timerInterval) {
+state.startTime = Date.now() - state.elapsedTime;
+state.timerInterval = setInterval(updateTimer, 1000);
+}
+}
+// Update the timer display
+function updateTimer() {
+const elapsedTime = Date.now() - state.startTime;
+const seconds = Math.floor((elapsedTime / 1000) % 60);
+const minutes = Math.floor((elapsedTime / (1000 * 60)) % 60);
+timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+}
+// Update UI elements
+function updateUI() {
+movesElement.textContent = state.moves;
+if (gameConfig.players > 1) {
+let scoreText = state.playerScores.join(' - ');
+scoreElement.textContent = scoreText;
+} else {
+scoreElement.textContent = state.score;
+}
+}
+// End the game
+function endGame() {
+pauseTimer();
+// Dispatch game end event
+const gameEndEvent = new Event('gameEnd');
+document.dispatchEvent(gameEndEvent);
+// Add celebration animation to all matched cards
+document.querySelectorAll('.card.matched').forEach(card => {
+card.classList.add('celebrate-animation');
+});
+// Show victory modal
+setTimeout(() => {
+if (gameConfig.players > 1) {
+const maxScore = Math.max(...state.playerScores);
+const winners = state.playerScores
+.map((score, index) => score === maxScore ? index + 1 : null)
+.filter(winner => winner !== null);
+const isMultipleWinners = winners.length > 1;
+const playerColors = {
+1: 'Naranja',
+2: 'Verde',
+3: 'Amarillo'
+};
+const scoresText = state.playerScores
+.map((score, index) => `${playerColors[index + 1]}: ${score}`)
+.join(' - ');
+finalTimeElement.textContent = scoresText;
+finalMovesElement.textContent = isMultipleWinners ?
+'Empate' :
+`Ganador: ${playerColors[winners[0]]}`;
+} else {
+finalTimeElement.textContent = timerElement.textContent;
+finalMovesElement.textContent = state.moves;
+}
+victoryModal.classList.remove('hidden');
+}, 1000);
+}
+// Menu Event Listeners
+document.querySelectorAll('.player-btn').forEach(btn => {
+btn.addEventListener('click', (e) => {
+const logo = document.querySelector('.logo-animation');
+logo.classList.remove('logo-animation');
+logo.classList.add('logo-spin');
+setTimeout(() => {
+logo.classList.remove('logo-spin');
+logo.classList.add('logo-animation');
+}, 500);
+document.querySelectorAll('.player-btn').forEach(b => b.classList.remove('bg-primary', 'text-white'));
+document.querySelectorAll('.player-btn').forEach(b => b.classList.add('bg-white', 'border-gray-300', 'text-gray-700'));
+e.target.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
+e.target.classList.add('bg-primary', 'text-white');
+gameConfig.players = parseInt(e.target.dataset.players);
+});
+});
+document.querySelectorAll('.level-btn').forEach(btn => {
+btn.addEventListener('click', (e) => {
+const logo = document.querySelector('.logo-animation');
+logo.classList.remove('logo-animation');
+logo.classList.add('logo-spin');
+setTimeout(() => {
+logo.classList.remove('logo-spin');
+logo.classList.add('logo-animation');
+}, 500);
+document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('bg-primary', 'text-white'));
+document.querySelectorAll('.level-btn').forEach(b => b.classList.add('bg-white', 'border-gray-300', 'text-gray-700'));
+e.target.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
+e.target.classList.add('bg-primary', 'text-white');
+gameConfig.level = parseInt(e.target.dataset.level);
+});
+});
+document.querySelectorAll('.category-btn').forEach(btn => {
+btn.addEventListener('click', (e) => {
+const logo = document.querySelector('.logo-animation');
+logo.classList.remove('logo-animation');
+logo.classList.add('logo-spin');
+setTimeout(() => {
+logo.classList.remove('logo-spin');
+logo.classList.add('logo-animation');
+}, 500);
+document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('bg-primary', 'text-white'));
+document.querySelectorAll('.category-btn').forEach(b => b.classList.add('bg-white', 'border-gray-300', 'text-gray-700'));
+e.target.classList.remove('bg-white', 'border-gray-300', 'text-gray-700');
+e.target.classList.add('bg-primary', 'text-white');
+gameConfig.category = e.target.dataset.category;
+});
+});
+document.getElementById('start-game').addEventListener('click', startGame);
+// Game Event Listeners
+restartBtn.addEventListener('click', initGame);
+pauseBtn.addEventListener('click', () => {
+if (state.gameStarted && !state.gamePaused) {
+state.gamePaused = true;
+pauseTimer();
+pauseModal.classList.remove('hidden');
+}
+});
+resumeBtn.addEventListener('click', () => {
+state.gamePaused = false;
+resumeTimer();
+pauseModal.classList.add('hidden');
+});
+restartGameBtn.addEventListener('click', () => {
+pauseModal.classList.add('hidden');
+initGame();
+});
+exitBtn.addEventListener('click', () => {
+pauseModal.classList.add('hidden');
+// In a real app, this would navigate to home screen
+// For now, just restart the game
+initGame();
+});
+playAgainBtn.addEventListener('click', () => {
+victoryModal.classList.add('hidden');
+initGame();
+});
+homeBtn.addEventListener('click', () => {
+victoryModal.classList.add('hidden');
+// In a real app, this would navigate to home screen
+// For now, just restart the game
+initGame();
+});
+settingsBtn.addEventListener('click', (e) => {
+if (!state.gamePaused) {
+state.gamePaused = true;
+pauseTimer();
+}
+});
+// Initialize the game
+initGame();
+});
+</script>
+</body>
+</html>
