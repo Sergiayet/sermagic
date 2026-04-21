@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seleccionar Visualización</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+.floating-logo {
+  animation: float 3s ease-in-out infinite;
+}
+body {
+font-family: 'Poppins', sans-serif;
+background-color: #FFE4CC;
+min-height: 100vh;
+background-image: url('https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/98369f8deb33f9e2032a2e979ef835fa.png');
+background-size: cover;
+background-position: center;
+background-repeat: repeat;
+background-blend-mode: soft-light;
+}
+.option-card {
+transition: all 0.3s ease;
+}
+.option-card:hover {
+transform: translateY(-10px);
+box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+</style>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#FF8C00',secondary:'#FFA500'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+</head>
+<body class="flex flex-col items-center justify-center p-4">
+<div class="floating-logo mb-12">
+  <img src="https://static.readdy.ai/image/cd41dc559ace1de21325f4658cfb045a/94b269337303e48999ca488354af8596.jpeg" alt="Logo" class="w-64 h-auto">
+</div>
+<div class="w-full max-w-6xl text-center mb-12">
+<h1 class="text-4xl md:text-5xl font-bold text-primary mb-4">Selecciona tu modo de visualización</h1>
+<p class="text-lg text-gray-700">Elige cómo prefieres ver nuestro contenido</p>
+</div>
+<div class="w-full max-w-6xl flex flex-col md:flex-row gap-8 justify-center items-center">
+<!-- Opción Web -->
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/b98117df-98fa-46c3-b017-bad3e86fad1b" data-readdy="true" class="option-card w-full md:w-1/2 bg-primary rounded-lg p-8 text-center text-white cursor-pointer flex flex-col items-center">
+<div class="w-24 h-24 flex items-center justify-center mb-6">
+<i class="ri-computer-line ri-5x"></i>
+</div>
+<h2 class="text-3xl font-bold mb-4">Versión Web</h2>
+<p class="text-lg opacity-90">Experiencia completa optimizada para pantallas grandes</p>
+</a>
+<!-- Opción Mobile -->
+<a href="https://readdy.ai/home/5b61dd0b-4c63-47c6-95a0-d2e018acdcd3/8bf8e428-f513-4876-907b-d89e5015381f" data-readdy="true" class="option-card w-full md:w-1/2 bg-secondary rounded-lg p-8 text-center text-white cursor-pointer flex flex-col items-center">
+<div class="w-24 h-24 flex items-center justify-center mb-6">
+<i class="ri-smartphone-line ri-5x"></i>
+</div>
+<h2 class="text-3xl font-bold mb-4">Versión Móvil</h2>
+<p class="text-lg opacity-90">Diseño adaptado para una experiencia óptima en dispositivos móviles</p>
+</a>
+</div>
+<div class="mt-16 text-center text-gray-600">
+<p>© 2025 - Todos los derechos reservados</p>
+</div>
+<script id="interactionScript">
+document.addEventListener('DOMContentLoaded', function() {
+const cards = document.querySelectorAll('.option-card');
+cards.forEach(card => {
+card.addEventListener('mouseenter', function() {
+this.classList.add('scale-105');
+});
+card.addEventListener('mouseleave', function() {
+this.classList.remove('scale-105');
+});
+card.addEventListener('click', function() {
+// Añadir efecto de click
+this.classList.add('scale-95');
+setTimeout(() => {
+this.classList.remove('scale-95');
+}, 150);
+// Aquí se podría añadir la redirección a la versión correspondiente
+// window.location.href = this.getAttribute('data-url');
+});
+});
+});
+</script>
+</body>
+</html>
